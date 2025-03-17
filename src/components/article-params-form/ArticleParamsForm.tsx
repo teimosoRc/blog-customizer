@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import clsx from 'clsx';
 
 import styles from './ArticleParamsForm.module.scss';
@@ -14,75 +13,97 @@ import {
 	backgroundColors,
 	contentWidthArr,
 	fontSizeOptions,
-	OptionType,
 	fontColors,
 	fontFamilyOptions,
+	ArticleStateType,
 } from 'src/constants/articleProps';
 
-export const ArticleParamsForm = () => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [selectedFontFamily, setSelectedFontFamily] =
-		useState<OptionType | null>(null);
-	const [selectedFontColor, setSelectedFontColor] = useState<OptionType | null>(
-		null
-	);
-	const [selectedContentWidth, setSelectedContentWidth] =
-		useState<OptionType | null>(null);
-	const [selectedBgColor, setSelectedBgColor] = useState<OptionType | null>(
-		null
-	);
-	const [selectedFontSize, setSelectedFontSize] = useState<OptionType>(
-		fontSizeOptions[0]
-	);
-
-	const Opener = () => {
-		setIsOpen((prev) => !prev);
+type ArticleParamsFormProps = {
+	isOpen: boolean;
+	toggleForm: () => void;
+	formOptions: {
+		selectedFormOptions: ArticleStateType;
+		setSelectedFormOptions: React.Dispatch<
+			React.SetStateAction<ArticleStateType>
+		>;
 	};
+	formSubmit: (e: React.FormEvent) => void;
+	formReset: () => void;
+};
 
+export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={Opener} />
+			<ArrowButton isOpen={props.isOpen} onClick={props.toggleForm} />
 
-			{isOpen && (
+			{props.isOpen && (
 				<aside
 					className={clsx(styles.container, {
-						[styles.container_open]: isOpen,
+						[styles.container_open]: props.isOpen,
 					})}>
-					<form className={styles.form}>
+					<form
+						className={styles.form}
+						onSubmit={props.formSubmit}
+						onReset={props.formReset}>
 						<Text as={'h2'} size={31} uppercase weight={800} family='open-sans'>
 							задайте параметры
 						</Text>
 						<Select
 							title='Шрифт'
-							selected={selectedFontFamily}
+							selected={props.formOptions.selectedFormOptions.fontFamilyOption}
 							options={fontFamilyOptions}
-							onChange={(selected) => setSelectedFontFamily(selected)}
+							onChange={(selected) => {
+								props.formOptions.setSelectedFormOptions((prev) => ({
+									...prev,
+									fontFamilyOption: selected,
+								}));
+							}}
 						/>
 						<RadioGroup
 							title='размер шрифт'
 							name='fontSize'
 							options={fontSizeOptions}
-							selected={selectedFontSize}
-							onChange={(selected) => setSelectedFontSize(selected)}
+							selected={props.formOptions.selectedFormOptions.fontSizeOption}
+							onChange={(selected) => {
+								props.formOptions.setSelectedFormOptions((prev) => ({
+									...prev,
+									fontSizeOption: selected,
+								}));
+							}}
 						/>
 						<Select
 							title='цвет шрифта'
-							selected={selectedFontColor}
+							selected={props.formOptions.selectedFormOptions.fontColor}
 							options={fontColors}
-							onChange={(selected) => setSelectedFontColor(selected)}
+							onChange={(selected) => {
+								props.formOptions.setSelectedFormOptions((prev) => ({
+									...prev,
+									fontColor: selected,
+								}));
+							}}
 						/>
 						<Separator />
 						<Select
 							title='цвет фона'
-							selected={selectedBgColor}
+							selected={props.formOptions.selectedFormOptions.backgroundColor}
 							options={backgroundColors}
-							onChange={(selected) => setSelectedBgColor(selected)}
+							onChange={(selected) => {
+								props.formOptions.setSelectedFormOptions((prev) => ({
+									...prev,
+									backgroundColor: selected,
+								}));
+							}}
 						/>
 						<Select
 							title='ширина контента'
-							selected={selectedContentWidth}
+							selected={props.formOptions.selectedFormOptions.contentWidth}
 							options={contentWidthArr}
-							onChange={(selected) => setSelectedContentWidth(selected)}
+							onChange={(selected) => {
+								props.formOptions.setSelectedFormOptions((prev) => ({
+									...prev,
+									contentWidth: selected,
+								}));
+							}}
 						/>
 						<div className={clsx(styles.bottomContainer)}>
 							<Button title='Сбросить' htmlType='reset' type='clear' />
