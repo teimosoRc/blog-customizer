@@ -3,7 +3,8 @@
 	left: 0;
 	width: 616px;
 	height: 100%;
-	overflow: scroll;
+	overflow: auto;
+	background-color: #ffffff;
 	transform: translate(-616px);
 	transition: transform 0.5s ease;
 }
@@ -18,11 +19,11 @@
 	flex-direction: column;
 	gap: 50px;
 	box-sizing: border-box;
-	width: 616px;
+
+	// width: 616px;
 	height: auto;
 	min-height: 100%;
 	padding: 50px 31px;
-	background-color: #ffffff;
 	border-right: 1px solid #000000;
 }
 
@@ -30,4 +31,14 @@
 	display: flex;
 	justify-content: space-between;
 	margin-top: auto;
+}
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	display: none;
+}
+
+.overlay_open {
+	display: block;
 }
