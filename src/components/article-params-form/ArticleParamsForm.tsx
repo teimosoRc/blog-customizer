@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import styles from './ArticleParamsForm.module.scss';
@@ -16,102 +17,134 @@ import {
 	fontColors,
 	fontFamilyOptions,
 	ArticleStateType,
+	defaultArticleState,
 } from 'src/constants/articleProps';
 
 type ArticleParamsFormProps = {
-	isOpen: boolean;
-	toggleForm: () => void;
-	formOptions: {
-		selectedFormOptions: ArticleStateType;
-		setSelectedFormOptions: React.Dispatch<
-			React.SetStateAction<ArticleStateType>
-		>;
-	};
-	formSubmit: (e: React.FormEvent) => void;
-	formReset: () => void;
+	setCurrentStyle: (v: ArticleStateType) => void;
 };
 
-export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
+export const ArticleParamsForm = ({
+	setCurrentStyle,
+}: ArticleParamsFormProps) => {
+	const [isOpen, setIsOpen] = useState(false);
+
+	const [selectedFormOptions, setSelectedFormOptions] =
+		useState<ArticleStateType>(defaultArticleState);
+
+	const toggleForm = () => {
+		setIsOpen((prev) => !prev);
+	};
+
+	const closeForm = () => {
+		setIsOpen(false);
+	};
+
+	const formReset = () => {
+		setSelectedFormOptions(defaultArticleState);
+		setCurrentStyle(defaultArticleState);
+	};
+
+	const formSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		setCurrentStyle(selectedFormOptions);
+	};
+
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				closeForm();
+			}
+		};
+
+		document.addEventListener('keydown', handleEscape);
+		return () => {
+			document.removeEventListener('keydown', handleEscape);
+		};
+	}, [isOpen]);
+
 	return (
 		<>
-			<ArrowButton isOpen={props.isOpen} onClick={props.toggleForm} />
-
-			{props.isOpen && (
-				<aside
-					className={clsx(styles.container, {
-						[styles.container_open]: props.isOpen,
-					})}>
-					<form
-						className={styles.form}
-						onSubmit={props.formSubmit}
-						onReset={props.formReset}>
-						<Text as={'h2'} size={31} uppercase weight={800} family='open-sans'>
-							задайте параметры
-						</Text>
-						<Select
-							title='Шрифт'
-							selected={props.formOptions.selectedFormOptions.fontFamilyOption}
-							options={fontFamilyOptions}
-							onChange={(selected) => {
-								props.formOptions.setSelectedFormOptions((prev) => ({
-									...prev,
-									fontFamilyOption: selected,
-								}));
-							}}
-						/>
-						<RadioGroup
-							title='размер шрифт'
-							name='fontSize'
-							options={fontSizeOptions}
-							selected={props.formOptions.selectedFormOptions.fontSizeOption}
-							onChange={(selected) => {
-								props.formOptions.setSelectedFormOptions((prev) => ({
-									...prev,
-									fontSizeOption: selected,
-								}));
-							}}
-						/>
-						<Select
-							title='цвет шрифта'
-							selected={props.formOptions.selectedFormOptions.fontColor}
-							options={fontColors}
-							onChange={(selected) => {
-								props.formOptions.setSelectedFormOptions((prev) => ({
-									...prev,
-									fontColor: selected,
-								}));
-							}}
-						/>
-						<Separator />
-						<Select
-							title='цвет фона'
-							selected={props.formOptions.selectedFormOptions.backgroundColor}
-							options={backgroundColors}
-							onChange={(selected) => {
-								props.formOptions.setSelectedFormOptions((prev) => ({
-									...prev,
-									backgroundColor: selected,
-								}));
-							}}
-						/>
-						<Select
-							title='ширина контента'
-							selected={props.formOptions.selectedFormOptions.contentWidth}
-							options={contentWidthArr}
-							onChange={(selected) => {
-								props.formOptions.setSelectedFormOptions((prev) => ({
-									...prev,
-									contentWidth: selected,
-								}));
-							}}
-						/>
-						<div className={clsx(styles.bottomContainer)}>
-							<Button title='Сбросить' htmlType='reset' type='clear' />
-							<Button title='Применить' htmlType='submit' type='apply' />
-						</div>
-					</form>
-				</aside>
-			)}
+			<ArrowButton isOpen={isOpen} onClick={toggleForm} />
+			<div
+				onClick={closeForm}
+				className={clsx(styles.overlay, {
+					[styles.overlay_open]: isOpen,
+				})}
+			/>
+			<aside
+				className={clsx(styles.container, {
+					[styles.container_open]: isOpen,
+				})}>
+				<form className={styles.form} onSubmit={formSubmit} onReset={formReset}>
+					<Text as={'h2'} size={31} uppercase weight={800} family='open-sans'>
+						задайте параметры
+					</Text>
+					<Select
+						title='Шрифт'
+						selected={selectedFormOptions.fontFamilyOption}
+						options={fontFamilyOptions}
+						onChange={(selected) => {
+							setSelectedFormOptions((prev) => ({
+								...prev,
+								fontFamilyOption: selected,
+							}));
+						}}
+					/>
+					<RadioGroup
+						title='размер шрифт'
+						name='fontSize'
+						options={fontSizeOptions}
+						selected={selectedFormOptions.fontSizeOption}
+						onChange={(selected) => {
+							setSelectedFormOptions((prev) => ({
+								...prev,
+								fontSizeOption: selected,
+							}));
+						}}
+					/>
+					<Select
+						title='цвет шрифта'
+						selected={selectedFormOptions.fontColor}
+						options={fontColors}
+						onChange={(selected) => {
+							setSelectedFormOptions((prev) => ({
+								...prev,
+								fontColor: selected,
+							}));
+						}}
+					/>
+					<Separator />
+					<Select
+						title='цвет фона'
+						selected={selectedFormOptions.backgroundColor}
+						options={backgroundColors}
+						onChange={(selected) => {
+							setSelectedFormOptions((prev) => ({
+								...prev,
+								backgroundColor: selected,
+							}));
+						}}
+					/>
+					<Select
+						title='ширина контента'
+						selected={selectedFormOptions.contentWidth}
+						options={contentWidthArr}
+						onChange={(selected) => {
+							setSelectedFormOptions((prev) => ({
+								...prev,
+								contentWidth: selected,
+							}));
+						}}
+					/>
+					<div className={clsx(styles.bottomContainer)}>
+						<Button title='Сбросить' htmlType='reset' type='clear' />
+						<Button title='Применить' htmlType='submit' type='apply' />
+					</div>
+				</form>
+			</aside>
 		</>
 	);
 };
